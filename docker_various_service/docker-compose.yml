@@ -1,0 +1,17 @@
+version: '2'
+services:
+  product-service:
+    build: ./DockerProduct
+    volumes:
+      - ./DockerProduct:/usr/src/app
+    ports:
+      - 5000:80
+
+  website:
+    image: php:apache
+    volumes:
+      - ./website:/var/www/html
+    ports:
+      - 5010:80
+    depends_on:
+      - product-service
