@@ -1,0 +1,72 @@
+version: '3'
+
+services:
+  reverse-proxy:
+    image: traefik # The official Traefik docker image
+    command: --web --docker --docker.domain=docker.localhost --logLevel=DEBUG --traefikLog.format="json" --accessLog.format="json" $PWD/traefik.toml:/etc/traefik/traefik.toml
+    ports:
+      - "80:80"     # The HTTP port
+      - "8080:8080" # The Web UI (enabled by --api)
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock # So that Traefik can listen to the Docker events
+      - ./traefik/traefik.toml:/traefik.toml
+      - /dev/null:/traefik.toml
+    labels:
+      - "traefik.enable=true"
+        # ...
+  whoami:
+    image: emilevauge/whoami # A container that exposes an API to show its IP address
+    labels:
+      - traefik.backend=whoami
+      - "traefik.frontend.rule=Host:whoami.docker.localhost"
+  whoami2:
+    image: emilevauge/whoami
+    labels:
+      - traefik.backend=whoami2
+      - "traefik.frontend.rule=Path:/test2/, _/mwas/_"
+  friendlyhello:
+    image: friendlyhello
+    ports:
+      - "4001:80"
+    labels:
+      - traefik.backend=friendlyhello1
+      - "traefik.frontend.rule=Host:friendlyhello.docker.localhost"
+  friendlyhello2:
+    image: friendlyhello2
+    ports:
+      - "4002:80"
+    labels:
+      - traefik.backend=friendlyhello2
+      - "traefik.frontend.rule=Path:/testFriendlyHello2/"
+  aspnetapp:
+    image: aspnetapp
+    labels:
+      - traefik.backend=aspnetapp
+      - traefik.frontend.rule=PathPrefixStrip:/test1/
+      - "traefik.port=80"
+  aspnetap_v2:
+    image: aspnetapp_v2
+    labels:
+      - traefik.backend=aspnetapp_v2
+      - traefik.frontend.rule=PathPrefixStrip:/test2/
+      - "traefik.port=80"
+  aspnetapp_v3:
+    image: aspnetapp_v3
+    labels:
+      - traefik.backend=aspnetapp_v3
+      - traefik.frontend.rule=PathPrefixStrip:/test3/
+      - "traefik.port=80"
+  aspnetapp_v10:
+    image: aspnetapp_v10
+     labels:
+      - traefik.backend=aspnetapp_v10
+      - traefik.frontend.rule=PathPrefixStrip:/test10/
+      - "traefik.port=80"
+  aspnetapp_v20:
+    image: aspnetapp_v20
+    labels:
+      - traefik.backend=aspnetapp_v20
+      - traefik.frontend.rule=PathPrefixStrip:/test20/
+      - "traefik.port=80"
+
+   
